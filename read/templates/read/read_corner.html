@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Coin de lecture</h2>
+    {% if book %}
+        <h3>{{ book.title }}</h3>
+    {% else %}
+        <p>
+            Vous n'avez pas encore de livre, <a href="{% url 'upload_book' %}">téléverser une livre</a> pour commencer.
+        </p>
+    {% endif %}
+    {% if audio %}
+        <p class="audio-duration">Votre audio a une durée totale de: {{ audio.audio_time|duration_string }}</p>
+        {% if audio.audio_time.seconds > 0 %}
+            {% if audio.audio_time.seconds <= 3600 %}
+                <p class="book-comment">C'est un petit livre ça!</p>
+            {% elif audio.audio_time.seconds > 3600 and audio.audio_time.seconds <= 14400 %}
+                <p class="book-comment">C'est un livre assez long, bonne écoute!</p>
+            {% else %}
+                <p class="book-comment">Voilà un bon gros bouquin, bonne écoute!</p>
+            {% endif %}
+            <div class="overlay" id="overlay"></div>
+            <div class="modal" id="loadingModal">
+                <div class="loader"></div>
+                <p>Chargement de votre audio en cours...</p>
+                <p>
+                    <a href="{% url 'logout' %}">Se déconnecter</a>
+                </p>
+            </div>
+            <div class="audio-part">
+                <audio id="audioPlayer"
+                       data-audio-url="{{ audio.original_audio.url }}"
+                       controls
+                       preload="auto">
+                    <source src="{{ audio.original_audio.url }}" type="audio/mp3">
+                    Votre navigateur ne supporte pas l'élément audio.
+                </audio>
+                <div id="audio-add-controls">
+                    <button id="backwardButton">Reculer de 10 secondes</button>
+                    <button id="forwardButton">Avancer de 10 secondes</button>
+                </div>
+            </div>
+        {% else %}
+            <p>Pas de temps trouvé</p>
+        {% endif %}
+    {% endif %}
+    <div id="videoDiv" class="lomelindy-window">
+        <video id="readingVideo" width="1060" height="620" autoplay loop muted>
+            <source src="/media/lomelindya/Lomelindya_read_corner_waiting.mp4"
+                    type="video/mp4">
+            Votre navigateur ne prend pas en charge la balise vidéo.
+        </video>
+    </div>
+{% endblock content %}

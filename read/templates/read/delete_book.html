@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Confirmez la suppression du livre</h1>
+    <p>Êtes-vous sûr de vouloir supprimer le livre "{{ object.title }}" ?</p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="Confirmer la suppression">
+    </form>
+    <p>
+        <a href="{% url 'read_corner' %}">Annuler</a>
+    </p>
+{% endblock content %}

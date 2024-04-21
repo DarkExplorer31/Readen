@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Connexion</h1>
+    <section class="login">
+        <p class="login_error">{{ message }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+            <div>
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+            <button class="btn btn-primary" type="submit">Se connecter</button>
+            <p>
+                Pas encore membre? <a href="{% url 'signup' %}">S'inscrire ici</a>
+            </p>
+        </form>
+    </section>
+{% endblock content %}

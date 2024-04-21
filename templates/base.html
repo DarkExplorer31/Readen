@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Readen</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+        <script defer src="{% static 'js/script.js' %}"></script>
+    </head>
+    <body>
+        <header>
+            <h1>
+                <a href="{% url 'read_corner' %}">Readen</a>
+            </h1>
+            {% if user.is_authenticated %}
+                <p class="hello">Bonjour {{ request.user.first_name }},</p>
+                <nav>
+                    <button id="menu-button">Menu</button>
+                    <div id="menu-overlay"></div>
+                    <div id="side-menu">
+                        <button id="close-button">X</button>
+                        <ul>
+                            <li>
+                                <a href="https://www.ebooksgratuits.com/ebooks.php"
+                                   target="_blank"
+                                   rel="noopener noreferrer">Chercher un livre</a>
+                            </li>
+                            {% if user.audio %}
+                                <p class="book-info">Votre livre actuel: {{ user.book.title }}</p>
+                                <p class="book-info">Téléversé le: {{ user.book.upload_time }}h</p>
+                                <li>
+                                    <a href="{% url 'update_title' %}">Modifier le titre</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'delete_book' %}">Supprimer le livre</a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="{% url 'upload_book' %}">Téléverser un livre</a>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <a href="{% url 'logout' %}">Se déconnecter</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            {% endif %}
+        </header>
+        <main>
+            {% block content %}
+            {% endblock content %}
+        </main>
+        <footer>
+            {% if user.is_authenticated %}
+                <p>
+                    Vous êtes connecté en tant que {{ request.user.email }}. <a href="{% url 'logout' %}">Se déconnecter</a>
+                </p>
+            {% endif %}
+        </footer>
+    </body>
+</html>

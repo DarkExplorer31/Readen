@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+    {% endif %}
+    {% if book %}
+        <h2>Modifier un titre du livre: {{ book.title }}</h2>
+    {% else %}
+        <h2>Téléverser un livre</h2>
+        <p>
+            Téléverser un livre prend du temps, car il transcrit le livre en audio dès le moment où le formulaire est valide. Ne fermez pas la page lors du téléchargement.
+        </p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-field">
+            <p>Titre</p>
+            {{ form.title }}
+            {% for error in form.title.errors %}<p class="error">{{ error }}</p>{% endfor %}
+            {% if book %}
+                <button type="submit" class="form-button">Modifier le titre du livre</button>
+            {% else %}
+                <p>Fichier</p>
+                {{ form.upload }}
+                {% for error in form.upload.errors %}<p class="error">{{ error }}</p>{% endfor %}
+                <button type="submit" class="form-button">Téléversé le livre</button>
+            {% endif %}
+        </div>
+    </form>
+{% endblock content %}

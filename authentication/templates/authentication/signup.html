@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Inscription</h1>
+    <div class="overlay" id="overlay"></div>
+    <div id="signUpVideoModal" class="modal">
+        <video id="signUpVideo" width="1060" height="620">
+            <source src="/media/lomelindya/Lomelindya_signup.mp4" type="video/mp4">
+            Votre navigateur ne prend pas en charge la balise vidéo.
+        </video>
+    </div>
+    {% if form.errors %}
+        <p>Il y a des erreurs dans le formulaire :</p>
+        <ul>
+            {% for field_errors in form.errors.values %}
+                {% for error in field_errors %}<li>{{ error }}</li>{% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">S'inscrire</button>
+    </form>
+{% endblock content %}
