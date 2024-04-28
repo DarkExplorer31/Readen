@@ -26,7 +26,7 @@
                                    target="_blank"
                                    rel="noopener noreferrer">Chercher un livre</a>
                             </li>
-                            {% if user.audio %}
+                            {% if user.book %}
                                 <p class="book-info">Votre livre actuel: {{ user.book.title }}</p>
                                 <p class="book-info">Téléversé le: {{ user.book.upload_time }}h</p>
                                 <li>

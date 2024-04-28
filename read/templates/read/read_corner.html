@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
     <h2>Coin de lecture</h2>
-    {% if book %}
+    {% if book and not audio %}
         <h3>{{ book.title }}</h3>
     {% else %}
         <p>
             Vous n'avez pas encore de livre, <a href="{% url 'upload_book' %}">téléverser une livre</a> pour commencer.
         </p>
     {% endif %}
-    {% if audio %}
+    {% if book and audio %}
         <p class="audio-duration">Votre audio a une durée totale de: {{ audio.audio_time|duration_string }}</p>
         {% if audio.audio_time.seconds > 0 %}
             {% if audio.audio_time.seconds <= 3600 %}

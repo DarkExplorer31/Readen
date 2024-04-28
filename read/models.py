@@ -1,7 +1,5 @@
 import os
 from django.db import models
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 
 from authentication.models import User
 
@@ -33,17 +31,3 @@ class AudioBook(models.Model):
 
     def __str__(self):
         return f"{self.original_text.title} - {self.audio_created_time}"
-
-
-@receiver(pre_delete, sender=Book)
-def delete_upload_file(sender, instance, **kwargs):
-    if instance.upload:
-        if os.path.isfile(instance.upload.path):
-            os.remove(instance.upload.path)
-
-
-@receiver(pre_delete, sender=AudioBook)
-def delete_original_audio(sender, instance, **kwargs):
-    if instance.original_audio:
-        if os.path.isfile(instance.original_audio.path):
-            os.remove(instance.original_audio.path)

@@ -1,32 +1,35 @@
 import os
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
-from django.db import transaction
+from django.contrib import messages
 
 
 from read.forms import BookForm, TitleChangeForm
 from read.models import Book, AudioBook
-from read.utils import TextToSpeechConverter
-from read.tasks import generate_audio_book
+
+# from read.utils import TextToSpeechConverter
+# from read.tasks import generate_audio_book
 
 
 class ReadCornerView(LoginRequiredMixin, View):
     template_name = "read_corner.html"
 
     def get(self, request):
+        context = {}
         try:
             book = Book.objects.get(user=request.user)
+            context["book"] = book
         except Book.DoesNotExist:
-            context = {}
+            pass
         try:
             audio = AudioBook.objects.get(user=request.user)
-            context = {"book": book, "audio": audio}
+            context["audio"] = audio
         except AudioBook.DoesNotExist:
-            context = {}
+            pass
         return render(request, self.template_name, context)
 
 
@@ -36,52 +39,30 @@ class UploadBookView(LoginRequiredMixin, CreateView):
     template_name = "upload_book.html"
     success_url = reverse_lazy("read_corner")
 
-    @transaction.atomic
     def form_valid(self, form):
-        try:
-            book = form.save(commit=False)
-            book.user = self.request.user
-            book.title = str(book.title).capitalize()
-            path_to_file = book.upload.path
-            book.extension = os.path.splitext(path_to_file)[1][-3:].lower()
-            if book.extension != "pdf":
-                form.add_error(
-                    None,
-                    "Votre livre n'a pas pu être téléversé, il semble qu'il contienne trop de caractères.",
-                )
-                return self.form_invalid(form)
-            book.save()
-            converter = TextToSpeechConverter()
-            audio_path = generate_audio_book.delay(book.id, self.request.user.id)
-            if not audio_path:
-                form.add_error(
-                    None,
-                    "Votre livre n'a pas pu être téléversé.",
-                )
-                return self.form_invalid(form)
-            audio_book = AudioBook.objects.create(
-                original_text=book, original_audio=audio_path, user=self.request.user
-            )
-            audio_duration = converter.get_audio_duration(audio_path)
-            if not audio_duration:
-                form.add_error(
-                    None, "Votre livre n'est pas un PDF. Seuls ce format est accepté."
-                )
-                return self.form_invalid(form)
-            audio_book.audio_time = audio_duration
-            audio_book.save()
-            return super().form_valid(form)
-        except Exception as e:
-            print(e)
-            transaction.set_rollback(True)
-            if hasattr(book, "upload") and book.upload:
-                if os.path.isfile(book.upload.path):
-                    os.remove(book.upload.path)
+        user_books_count = Book.objects.filter(user=self.request.user).count()
+        if user_books_count >= 1:
             form.add_error(
                 None,
-                "Votre livre n'a pas pu être téléversé.",
+                "Votre livre n'a pas pu être téléversé, il semble "
+                + "que vous avez déjà un livre téléversé, veuillez le"
+                + " supprimer avant d'en téléversé un autre.",
             )
             return self.form_invalid(form)
+        book = form.save(commit=False)
+        book.user = self.request.user
+        book.title = str(book.title).capitalize()
+        path_to_file = book.upload.path
+        book.extension = os.path.splitext(path_to_file)[1][-3:].lower()
+        if book.extension != "pdf":
+            form.add_error(
+                None,
+                "Votre livre n'a pas pu être téléversé, il semble "
+                + "qu'il contienne trop de caractères.",
+            )
+            return self.form_invalid(form)
+        book.save()
+        return super().form_valid(form)
 
 
 class UpdateTitleView(LoginRequiredMixin, UpdateView):
@@ -91,10 +72,12 @@ class UpdateTitleView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("read_corner")
 
     def get_object(self, queryset=None):
-        get_object_or_404(Book, user=self.request.user)
+        return get_object_or_404(Book, user=self.request.user)
 
     def form_valid(self, form):
         book = self.get_object()
+        if not book:
+            return redirect(reverse_lazy("read_corner"))
         book.title = form.cleaned_data["title"]
         book.save()
         return super().form_valid(form)
@@ -105,13 +88,20 @@ class DeleteBookView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("read_corner")
 
     def get_object(self, queryset=None):
-        get_object_or_404(Book, user=self.request.user)
+        return get_object_or_404(Book, user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         book = self.get_object()
+        if not book:
+            messages.info(request, "Vous n'avez pas de livre téléverser.")
+            return redirect(reverse_lazy("read_corner"))
         book.upload.delete()
-        audiobook = AudioBook.objects.filter(user=request.user).first()
-        if audiobook:
-            audiobook.original_audio.delete()
-            audiobook.delete()
         return super().delete(request, *args, **kwargs)
+
+
+def error_404(request, exception):
+    return render(request, "404.html", status=404)
+
+
+def error_500(request):
+    return render(request, "500.html", status=500)
