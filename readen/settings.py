@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import sentry_sdk
 
 from django.core.files.storage import FileSystemStorage
 
@@ -181,3 +182,19 @@ SESSION_COOKIE_HTTPONLY = True
 
 LOGIN_REDIRECT_URL = "read_corner"
 LOGIN_URL = "login"
+
+# Retrieve sentry dsn from environment variable
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+
+# Check if secret key is defined
+if not SENTRY_DSN:
+    raise ValueError(
+        "The SENTRY_DSN environment variable is not defined. "
+        + "Please check if you have '.env' file."
+    )
+
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
