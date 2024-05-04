@@ -11,7 +11,7 @@ class TextToSpeechConverter:
     RATE = 145
 
     @classmethod
-    def _convert_pdf_file(cls, file_path, text=""):
+    def convert_pdf_file(cls, file_path, text=""):
         first_page_to_ignore = "Table des matières"
         second_page_to_ignore = "À propos de cette édition électronique"
         first_page_to_ignore_index = 0
@@ -37,7 +37,7 @@ class TextToSpeechConverter:
         return text
 
     @classmethod
-    def _split_into_sentences(cls, text):
+    def split_into_sentences(cls, text):
         delimiters = ".!? "
         sentences = []
         current_sentence = []
@@ -81,11 +81,11 @@ class TextToSpeechConverter:
     def convert_to_speech(self, book, user, file_path):
         file_type = book.extension
         if file_type == "pdf":
-            text = self._convert_pdf_file(file_path)
+            text = self.convert_pdf_file(file_path)
         else:
             raise ValueError(f"Unsupported file type: {file_type}")
         text = self._preprocess_text(text)
-        sentences = self._split_into_sentences(text)
+        sentences = self.split_into_sentences(text)
         engine = pyttsx3.init()
         engine.setProperty("rate", self.RATE)
         full_text = " ".join(sentences)

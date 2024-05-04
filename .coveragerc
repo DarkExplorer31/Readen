@@ -1,2 +1,2 @@
 [run]
-omit = tests/*,read/tests/*,readen/tests/*
+omit = test/*,read/test/*,readen/test/*

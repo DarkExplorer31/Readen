@@ -165,6 +165,12 @@ STORAGES = {
             "location": MEDIA_ROOT,
         },
     },
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": MEDIA_ROOT,
+        },
+    },
 }
 
 # Specify the default storage backend for static files
