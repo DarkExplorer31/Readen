@@ -96,9 +96,6 @@ class TextToSpeechConverter:
         engine.setProperty("rate", self.RATE)
         full_text = " ".join(sentences)
         audio_path = os.path.join(settings.MEDIA_ROOT, f"audios/{user.email}_audio.mp3")
-        text_path = os.path.join(settings.MEDIA_ROOT, f"{user.email}_text.txt")
-        with open(text_path, "w", encoding="utf-8") as text_file:
-            text_file.write(full_text)
         engine.save_to_file(full_text, audio_path)
         engine.runAndWait()
         return audio_path
