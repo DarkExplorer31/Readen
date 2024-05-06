@@ -38,7 +38,7 @@ class TextToSpeechConverter:
 
     @classmethod
     def split_into_sentences(cls, text):
-        delimiters = ".!? "
+        delimiters = ".!?"
         sentences = []
         current_sentence = []
         for char in text:
@@ -48,13 +48,19 @@ class TextToSpeechConverter:
                 if sentence:
                     sentences.append(sentence)
                 current_sentence = []
+        last_sentence = "".join(current_sentence).strip()
+        if last_sentence:
+            sentences.append(last_sentence)
         return sentences
 
     def _replace_abbreviations(self, text):
         abbreviations = {
             "dr.": "docteur",
+            "Dr.": "docteur",
             "mr.": "monsieur",
+            "Mr.": "monsieur",
             "mrs.": "madame",
+            "Mrs.": "madame",
             "&": "et",
         }
         for abbreviation, full_form in abbreviations.items():
@@ -62,15 +68,15 @@ class TextToSpeechConverter:
         return text
 
     def _remove_special_characters(self, text):
-        special_characters = "@#$%^*_{}[]|'\"<>/`~"
+        special_characters = '@#$%^*_{}[]|"<>/`~!'
         text = "".join(char for char in text if char not in special_characters)
         return text
 
     def _preprocess_text(self, text):
-        text = text.replace("<<", "").replace("»", "")
+        text = text.replace("<<", "").replace(">>", "")
         text = text.replace(":", ",").replace("...", ",")
         text = text.replace(" - ", ",")
-        text = text.replace("  ", " ")
+        text = re.sub(r"\s+", " ", text)
         text = text.replace("-\n", "")
         text = text.replace("\n", "_ ")
         text = re.sub(r"\s[0-9]{1,5}\s", " ", text)

@@ -25,14 +25,16 @@ def only_book_fixture():
         first_name="user2",
         last_name="2",
     )
-    book2 = Book.objects.create(title="Book 1", user=user2, upload="")
+    book2 = Book.objects.create(
+        title="Book 1", user=user2, upload="read/test/media/test.pdf"
+    )
     client2 = Client()
     client2.force_login(user2)
     return client2, book2
 
 
 @pytest.fixture
-def client_with_logged_in_user_fixture():
+def only_connected_user_fixture():
     user3 = User.objects.create_user(
         username="user3@user.com",
         email="user3@user.com",
