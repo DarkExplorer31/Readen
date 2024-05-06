@@ -106,16 +106,18 @@ def test_convert_to_speech(file_extension, only_book_fixture):
     converter = TextToSpeechConverter()
     if book.extension != "pdf":
         with pytest.raises(ValueError):
-            pdf_file_path = "read/test/media/test.pdf"
-            audio_path = converter.convert_to_speech(book, book.user, pdf_file_path)
+            file = "read/test/media/test.pdf"
+            audio_path = converter.convert_to_speech(book, book.user, file)
         return
-    pdf_file_path = "read/test/media/test.pdf"
-    audio_path = converter.convert_to_speech(book, book.user, pdf_file_path)
+    file = "read/test/media/test.pdf"
+    audio_path = converter.convert_to_speech(book, book.user, file)
     assert os.path.isfile(audio_path)
 
 
 def test_get_audio_duration_mp3():
-    audio_path = "media/audios/user2@user.com_audio.mp3"
+    audio_path = os.path.join(
+        settings.MEDIA_ROOT, "audios/us" + "er2@user.com_audio.mp3"
+    )
     converter = TextToSpeechConverter()
     duration = converter.get_audio_duration(audio_path)
     assert isinstance(duration, timedelta)

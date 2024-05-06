@@ -107,7 +107,6 @@ class TextToSpeechConverter:
                 frame_rate = audio_file.getframerate()
                 if frame_rate <= 0 or num_frames <= 0:
                     raise ValueError("Invalid frame rate or audio duration")
-
                 duration_seconds = num_frames / float(frame_rate)
                 duration_timedelta = timedelta(seconds=duration_seconds)
                 return duration_timedelta
