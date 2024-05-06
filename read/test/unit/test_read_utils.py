@@ -110,14 +110,14 @@ def test_convert_to_speech(file_extension, only_book_fixture):
             audio_path = converter.convert_to_speech(book, book.user, file)
         return
     file = "read/test/media/test.pdf"
-    audio_path = converter.convert_to_speech(book, book.user, file)
+    audio_path = converter.convert_to_speech(
+        book, book.user, file, path_explicit="read/test/media/test.mp3"
+    )
     assert os.path.isfile(audio_path)
 
 
 def test_get_audio_duration_mp3():
-    audio_path = os.path.join(
-        settings.MEDIA_ROOT, "audios/us" + "er2@user.com_audio.mp3"
-    )
+    audio_path = "read/test/media/test.mp3"
     converter = TextToSpeechConverter()
     duration = converter.get_audio_duration(audio_path)
     assert isinstance(duration, timedelta)

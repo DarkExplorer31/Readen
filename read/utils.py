@@ -84,7 +84,7 @@ class TextToSpeechConverter:
         text = self._remove_special_characters(text)
         return text
 
-    def convert_to_speech(self, book, user, file_path):
+    def convert_to_speech(self, book, user, file_path, path_explicit=None):
         file_type = book.extension
         if file_type == "pdf":
             text = self.convert_pdf_file(file_path)
@@ -95,7 +95,12 @@ class TextToSpeechConverter:
         engine = pyttsx3.init()
         engine.setProperty("rate", self.RATE)
         full_text = " ".join(sentences)
-        audio_path = os.path.join(settings.MEDIA_ROOT, f"audios/{user.email}_audio.mp3")
+        if not path_explicit:
+            audio_path = os.path.join(
+                settings.MEDIA_ROOT, f"audios/{user.email}_audio.mp3"
+            )
+        else:
+            audio_path = path_explicit
         engine.save_to_file(full_text, audio_path)
         engine.runAndWait()
         return audio_path
