@@ -116,15 +116,16 @@ def test_convert_to_speech(file_extension, only_book_fixture):
     assert os.path.isfile(audio_path)
 
 
-def test_get_audio_duration_mp3():
-    audio_path = "read/test/media/test.mp3"
-    converter = TextToSpeechConverter()
-    duration = converter.get_audio_duration(audio_path)
-    assert isinstance(duration, timedelta)
-    os.remove(audio_path)
-
-
-def test_get_audio_duration_invalid():
-    converter = TextToSpeechConverter()
-    duration = converter.get_audio_duration("fake/path/to/audio.mp3")
-    assert duration is None
+@pytest.mark.parametrize(
+    "audio_path", ["read/test/media/test.mp3", "fake/path/to/audio.mp3"]
+)
+def test_get_audio_duration_mp3(audio_path):
+    if os.path.exists(audio_path):
+        converter = TextToSpeechConverter()
+        duration = converter.get_audio_duration(audio_path)
+        assert isinstance(duration, timedelta)
+        os.remove(audio_path)
+    else:
+        converter = TextToSpeechConverter()
+        duration = converter.get_audio_duration(audio_path)
+        assert duration is None
