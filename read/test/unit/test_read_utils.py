@@ -111,21 +111,20 @@ def test_convert_to_speech(file_extension, only_book_fixture):
         return
     file = "read/test/media/test.pdf"
     audio_path = converter.convert_to_speech(
-        book, book.user, file, path_explicit="read/test/media/test.mp3"
+        book, book.user, file, path_explicit="read/test/media/test2.mp3"
     )
     assert os.path.isfile(audio_path)
+    os.remove(audio_path)
 
 
 @pytest.mark.parametrize(
     "audio_path", ["read/test/media/test.mp3", "fake/path/to/audio.mp3"]
 )
 def test_get_audio_duration_mp3(audio_path):
+    converter = TextToSpeechConverter()
+    converter = TextToSpeechConverter()
+    duration = converter.get_audio_duration(audio_path)
     if os.path.exists(audio_path):
-        converter = TextToSpeechConverter()
-        duration = converter.get_audio_duration(audio_path)
         assert isinstance(duration, timedelta)
-        os.remove(audio_path)
     else:
-        converter = TextToSpeechConverter()
-        duration = converter.get_audio_duration(audio_path)
         assert duration is None
