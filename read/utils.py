@@ -11,7 +11,7 @@ class TextToSpeechConverter:
     RATE = 145
 
     @classmethod
-    def _convert_pdf_file(cls, file_path, text=""):
+    def convert_pdf_file(cls, file_path, text=""):
         first_page_to_ignore = "Table des matières"
         second_page_to_ignore = "À propos de cette édition électronique"
         first_page_to_ignore_index = 0
@@ -37,8 +37,8 @@ class TextToSpeechConverter:
         return text
 
     @classmethod
-    def _split_into_sentences(cls, text):
-        delimiters = ".!? "
+    def split_into_sentences(cls, text):
+        delimiters = ".!?"
         sentences = []
         current_sentence = []
         for char in text:
@@ -48,13 +48,19 @@ class TextToSpeechConverter:
                 if sentence:
                     sentences.append(sentence)
                 current_sentence = []
+        last_sentence = "".join(current_sentence).strip()
+        if last_sentence:
+            sentences.append(last_sentence)
         return sentences
 
     def _replace_abbreviations(self, text):
         abbreviations = {
             "dr.": "docteur",
+            "Dr.": "docteur",
             "mr.": "monsieur",
+            "Mr.": "monsieur",
             "mrs.": "madame",
+            "Mrs.": "madame",
             "&": "et",
         }
         for abbreviation, full_form in abbreviations.items():
@@ -62,15 +68,15 @@ class TextToSpeechConverter:
         return text
 
     def _remove_special_characters(self, text):
-        special_characters = "@#$%^*_{}[]|'\"<>/`~"
+        special_characters = '@#$%^*_{}[]|"<>/`~!'
         text = "".join(char for char in text if char not in special_characters)
         return text
 
     def _preprocess_text(self, text):
-        text = text.replace("<<", "").replace("»", "")
+        text = text.replace("<<", "").replace(">>", "")
         text = text.replace(":", ",").replace("...", ",")
         text = text.replace(" - ", ",")
-        text = text.replace("  ", " ")
+        text = re.sub(r"\s+", " ", text)
         text = text.replace("-\n", "")
         text = text.replace("\n", "_ ")
         text = re.sub(r"\s[0-9]{1,5}\s", " ", text)
@@ -78,21 +84,23 @@ class TextToSpeechConverter:
         text = self._remove_special_characters(text)
         return text
 
-    def convert_to_speech(self, book, user, file_path):
+    def convert_to_speech(self, book, user, file_path, path_explicit=None):
         file_type = book.extension
         if file_type == "pdf":
-            text = self._convert_pdf_file(file_path)
+            text = self.convert_pdf_file(file_path)
         else:
             raise ValueError(f"Unsupported file type: {file_type}")
         text = self._preprocess_text(text)
-        sentences = self._split_into_sentences(text)
+        sentences = self.split_into_sentences(text)
         engine = pyttsx3.init()
         engine.setProperty("rate", self.RATE)
         full_text = " ".join(sentences)
-        audio_path = os.path.join(settings.MEDIA_ROOT, f"audios/{user.email}_audio.mp3")
-        text_path = os.path.join(settings.MEDIA_ROOT, f"{user.email}_text.txt")
-        with open(text_path, "w", encoding="utf-8") as text_file:
-            text_file.write(full_text)
+        if not path_explicit:
+            audio_path = os.path.join(
+                settings.MEDIA_ROOT, f"audios/{user.email}_audio.mp3"
+            )
+        else:
+            audio_path = path_explicit
         engine.save_to_file(full_text, audio_path)
         engine.runAndWait()
         return audio_path
@@ -104,7 +112,6 @@ class TextToSpeechConverter:
                 frame_rate = audio_file.getframerate()
                 if frame_rate <= 0 or num_frames <= 0:
                     raise ValueError("Invalid frame rate or audio duration")
-
                 duration_seconds = num_frames / float(frame_rate)
                 duration_timedelta = timedelta(seconds=duration_seconds)
                 return duration_timedelta

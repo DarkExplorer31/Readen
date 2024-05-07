@@ -7,9 +7,6 @@
         <h2>Modifier un titre du livre: {{ book.title }}</h2>
     {% else %}
         <h2>Téléverser un livre</h2>
-        <p>
-            Téléverser un livre prend du temps, car il transcrit le livre en audio dès le moment où le formulaire est valide. Ne fermez pas la page lors du téléchargement.
-        </p>
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
