@@ -1,56 +1,63 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <h2>Coin de lecture</h2>
     {% if book %}
         <h3>{{ book.title }}</h3>
         <div id="book-container">
-            <!--Previous Button-->
+            <!-- Previous Button -->
             <button id="prev-btn">
                 <i class="fas fa-arrow-circle-left"></i>
             </button>
-            <!--Book-->
-            <div id="book" class="book">
-                <!--Paper 1-->
-                <div id="p1" class="paper">
+            <!-- Book -->
+            <div id="book" class="book" data-pdf="{{ user.book.upload }}">
+                <!-- First Paper -->
+                <div id="first" class="paper">
                     <div class="front">
                         <div id="f1" class="front-content">
-                            <h1>Front 1</h1>
+                            <img id="cover"
+                                 src="{% static 'images/book.jpg' %}"
+                                 alt="Image de couverture">
                         </div>
                     </div>
                     <div class="back">
-                        <div id="b1" class="back-content">
-                            <h1>Back 1</h1>
-                        </div>
+                        <div id="b1" class="back-content"></div>
                     </div>
                 </div>
-                <!--Paper 2-->
+                <!-- Additional Papers -->
                 <div id="p2" class="paper">
                     <div class="front">
                         <div id="f2" class="front-content">
-                            <h1>Front 2</h1>
                         </div>
                     </div>
                     <div class="back">
                         <div id="b2" class="back-content">
-                            <h1>Back 2</h1>
                         </div>
                     </div>
                 </div>
-                <!--Paper 3-->
                 <div id="p3" class="paper">
                     <div class="front">
                         <div id="f3" class="front-content">
-                            <h1>Front 3</h1>
                         </div>
                     </div>
                     <div class="back">
                         <div id="b3" class="back-content">
-                            <h1>Back 3</h1>
                         </div>
                     </div>
                 </div>
+                <!-- Last Paper -->
+                <div id="last" class="paper">
+                    <div class="front">
+                        <div id="f4" class="front-content"></div>
+                    </div>
+                    <div class="back">
+                        <img id="cover"
+                             src="{% static 'images/book.jpg' %}"
+                             alt="Image de couverture">
+                    </div>
+                </div>
             </div>
-            <!--Next Button-->
+            <!-- Next Button -->
             <button id="next-btn">
                 <i class="fas fa-arrow-circle-right"></i>
             </button>
@@ -95,11 +102,13 @@
             <p>Pas de temps trouvé</p>
         {% endif %}
     {% endif %}
-    <div id="videoDiv" class="lomelindy-window">
-        <video id="readingVideo" width="1060" height="620" autoplay loop muted>
-            <source src="/media/lomelindya/Lomelindya_read_corner_waiting.mp4"
-                    type="video/mp4">
-            Votre navigateur ne prend pas en charge la balise vidéo.
-        </video>
-    </div>
+    {% if not audio and not book %}
+        <div id="videoDiv" class="lomelindy-window">
+            <video id="readingVideo" width="1060" height="620" autoplay loop muted>
+                <source src="/media/lomelindya/Lomelindya_read_corner_waiting.mp4"
+                        type="video/mp4">
+                Votre navigateur ne prend pas en charge la balise vidéo.
+            </video>
+        </div>
+    {% endif %}
 {% endblock content %}
