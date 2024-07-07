@@ -172,6 +172,7 @@ const paper3 = document.querySelector("#p3");
 const lastPaper = document.querySelector("#last");
 
 nextBtn.addEventListener("click", goNextPage);
+prevBtn.addEventListener("click", goPreviousPage);
 
 function exitZoom() {
     prevBtn.classList.remove("open");
@@ -198,6 +199,10 @@ function closeBook(isAtBeginning) {
     if (isAtBeginning) {
         book.style.transform = "translateX(0%)";
         prevBtn.style.display = "none";
+        nextBtn.style.display = "block";
+        firstPaper.classList.remove("flipped")
+        lastPaper.style.zIndex = 1;
+        firstPaper.style.zIndex = 4;
         paper2.classList.remove("flipped");
         paper3.classList.remove("flipped");
         lastPaper.classList.remove("flipped");
@@ -228,6 +233,7 @@ function goNextPageUnderFivePage() {
         view += 1;
     } else if (view === 2 && numOfPapers === 1) {
         closeBook();
+        view += 1;
     } else if (view === 2 && numOfPapers === 2) {
         loadPDFPage(fullPDFPath, p2Position, paper2.querySelector('.back-content'));
         paper2.classList.add("flipped");
@@ -235,22 +241,28 @@ function goNextPageUnderFivePage() {
         view += 1;
     } else if (view === 3 && numOfPapers === 2) {
         closeBook();
+        view += 1;
     } else if (view === 2 && numOfPapers > 2) {
         loadPDFPage(fullPDFPath, p2Position, paper2.querySelector('.back-content'));
         loadPDFPage(fullPDFPath, p3Position, paper3.querySelector('.front-content'));
         paper2.classList.add("flipped");
         view += 1;
     } else if (view === 3 && numOfPapers === 3) {
+        loadPDFPage(fullPDFPath, p3Position, lastPaper.querySelector('.front-content'));
         closeBook();
+        view += 1;
     } else if (view === 3 && numOfPapers === 4) {
         loadPDFPage(fullPDFPath, p4Position, paper3.querySelector('.back-content'));
         paper3.classList.add("flipped");
         paper2.style.zIndex = 2;
         paper3.style.zIndex = 3;
         view += 1;
+    } else if (view === 4 && numOfPapers === 4) {
+        closeBook();
+        view += 1;
     } else {
         closeBook();
-    }
+    } console.log("Current view: " + view);
 }
 
 function goNextPage() {
@@ -324,5 +336,106 @@ function goNextPage() {
         console.log(`view: ${view}, p1: ${p1Position}, p2: ${p2Position}, p3: ${p3Position}, p4: ${p4Position}, numOfPaper: ${numOfPapers}, pointOfView: ${pointOfView}`)
     } else if (numOfPapers <= 4) {
         goNextPageUnderFivePage();
+    }
+}
+
+function goPreviousPageUnderFivePage() {
+    if (view === 2) {
+        closeBook(true);
+        loadPDFPage(fullPDFPath, p1Position, paper3.querySelector('.front-content'));
+        view -= 1;
+    } else if (view === 3) {
+        if (numOfPapers === 1) {
+            openBook();
+            loadPDFPage(fullPDFPath, p1Position, lastPaper.querySelector('.front-content'));
+            lastPaper.classList.remove("flipped");
+            paper3.classList.remove("flipped");
+        } else if (numOfPapers === 2) {
+            paper2.classList.remove("flipped");
+            paper3.classList.remove("flipped");
+            lastPaper.style.zIndex = 1;
+        } else if (numOfPapers === 3) {
+            paper2.classList.remove("flipped");
+        } else if (numOfPapers === 4) {
+            paper2.classList.remove("flipped");
+        }
+        view -= 1;
+    } else if (view === 4) {
+        if (numOfPapers === 2) {
+            openBook();
+            lastPaper.classList.remove("flipped");
+        } else if (numOfPapers === 3) {
+            openBook();
+            paper3.classList.remove("flipped");
+            lastPaper.classList.remove("flipped");
+            lastPaper.style.zIndex = 1;
+        } else if (numOfPapers === 4) {
+            openBook();
+            paper2.style.zIndex = 3;
+            paper3.style.zIndex = 2;
+            paper3.classList.remove("flipped");
+        }
+        view -= 1;
+    } else if (view === 5) {
+        openBook();
+        lastPaper.classList.remove("flipped");
+        lastPaper.style.zIndex = 1;
+        view -= 1;
+    } else {
+        closeBook(true);
+    }
+    console.log("Current view: " + view);
+}
+
+function goPreviousPage() {
+    if (pointOfView > 1) {
+        if (pointOfView === 2) {
+            closeBook(true);
+            view -= 1;
+            pointOfView -= 1;
+        } else if (pointOfView === 3) {
+            if (p2Position === numOfPapers) {
+                paper2.classList.remove("flipped");
+                paper3.classList.remove("flipped");
+                paper2.style.zIndex = 2;
+                paper3.style.zIndex = 3;
+            } else if (p4Position === numOfPapers) {
+                paper2.classList.remove("flipped");
+                paper3.classList.remove("flipped");
+                paper2.style.zIndex = 3;
+                paper3.style.zIndex = 2;
+            } else if (view === 4) {
+                firstPaper.style.zIndex = 1;
+                p1Position -= 4;
+                paper2.classList.remove("flipped");
+                loadPDFPage(fullPDFPath, p2Position, firstPaper.querySelector('.back-content'));
+                loadPDFPage(fullPDFPath, p2Position, paper2.querySelector('.back-content'));
+                loadPDFPage(fullPDFPath, p3Position, paper3.querySelector('.front-content'));
+                loadPDFPage(fullPDFPath, p4Position, paper3.querySelector('.back-content'));
+            } else if (view % 2 !== 0 && view !== 1) {
+                p2Position -= 4;
+                p3Position -= 4;
+                loadPDFPage(fullPDFPath, p4Position, paper3.querySelector('.back-content'));
+                loadPDFPage(fullPDFPath, p3Position, paper3.querySelector('.front-content'));
+                loadPDFPage(fullPDFPath, p4Position, firstPaper.querySelector('.back-content'));
+                loadPDFPage(fullPDFPath, p1Position, paper2.querySelector('.front-content'));
+                paper3.classList.remove("flipped");
+                paper2.classList.add("flipped");
+            } else if (view % 2 === 0 && view !== 2) {
+                p1Position -= 4;
+                p4Position -= 4;
+                loadPDFPage(fullPDFPath, p2Position, paper2.querySelector('.back-content'));
+                loadPDFPage(fullPDFPath, p1Position, paper2.querySelector('.front-content'));
+                loadPDFPage(fullPDFPath, p2Position, firstPaper.querySelector('.back-content'));
+                loadPDFPage(fullPDFPath, p3Position, paper3.querySelector('.front-content'));
+                paper2.classList.remove("flipped");
+                paper3.classList.add("flipped");
+            }
+            pointOfView -= 1;
+            view -= 1;
+        }
+        console.log(`view: ${view}, p1: ${p1Position}, p2: ${p2Position}, p3: ${p3Position}, p4: ${p4Position}, numOfPaper: ${numOfPapers}, pointOfView: ${pointOfView}`);
+    } else if (numOfPapers <= 4) {
+        goPreviousPageUnderFivePage();
     }
 }
